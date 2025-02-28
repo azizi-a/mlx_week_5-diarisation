@@ -9,6 +9,9 @@ from tqdm import tqdm
 from data.ami import AMIDataset, dataset
 from torch.utils.data import DataLoader
 
+#
+#
+#
 # Load the dataset
 ds = AMIDataset(dataset)
 
@@ -20,6 +23,9 @@ ds_train, ds_test = torch.utils.data.random_split(ds, [train_size, test_size])
 data_loader_train = DataLoader(ds_train, batch_size=16, num_workers=1)
 data_loader_validate = DataLoader(ds_test, batch_size=16, num_workers=1)
 
+#
+#
+#
 # Load the model
 model = whisper.load_model("tiny.en")
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -151,4 +157,4 @@ for epoch in range(8):
   artifact.add_file(f"model_epoch_{epoch}.pt")
   wandb.log_artifact(artifact)
 
-  wandb.finish()
+wandb.finish()
