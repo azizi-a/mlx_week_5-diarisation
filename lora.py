@@ -21,6 +21,9 @@ def add_lora_to_linear(linear_layer, rank=16, alpha=32):
   in_dim, out_dim = linear_layer.weight.shape
   lora = LoRALayer(in_dim, out_dim, rank, alpha)
 
+  # Move LoRA to the same device as the linear layer
+  lora = lora.to(linear_layer.weight.device)
+
   original_forward = linear_layer.forward
 
   def forward_with_lora(self, x):
