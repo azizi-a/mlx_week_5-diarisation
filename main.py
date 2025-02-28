@@ -3,8 +3,8 @@ import whisper
 import editdistance
 import numpy as np
 import wandb
-
 from tqdm import tqdm
+from lora import apply_lora_to_whisper
 
 from data.ami import AMIDataset, dataset
 from torch.utils.data import DataLoader
@@ -30,6 +30,10 @@ data_loader_validate = DataLoader(ds_test, batch_size=8, num_workers=1)
 model = whisper.load_model("small.en")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
+
+# Apply LoRA to the model
+model, lora_params = apply_lora_to_whisper(model, rank=16, alpha=32)
+print(f"Number of trainable parameters: {sum(p.numel() for p in lora_params)}")
 
 
 #
@@ -118,8 +122,8 @@ def validate_model(model, data_loader_validate):
 def train_model(model, data_loader_train, epoch=0):
   model.train()
 
-  # Define the optimizer and criterion
-  optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+  # Define the optimizer and criterion - only optimize LoRA parameters
+  optimizer = torch.optim.Adam(lora_params, lr=5e-5)
   criterion = torch.nn.CrossEntropyLoss()
 
   for audio, text in tqdm(data_loader_train, desc="Training epoch"):
@@ -142,19 +146,29 @@ def train_model(model, data_loader_train, epoch=0):
 #
 #
 # Initialize wandb
-wandb.init(project="diarisation")
+wandb.init(project="diarisation-lora")
 
 # zero shot validation
 validate_model(model, data_loader_validate)
 
 # train model
-for epoch in range(8):
+for epoch in range(4):
   train_model(model, data_loader_train, epoch)
   validate_model(model, data_loader_validate)
 
-  artifact = wandb.Artifact(f"model-epoch-{epoch}", type="model")
-  torch.save(model.state_dict(), f"model_epoch_{epoch}.pt")
-  artifact.add_file(f"model_epoch_{epoch}.pt")
+  # Save only the LoRA weights
+  torch.save(
+    {
+      "epoch": epoch,
+      "lora_state_dict": {f"lora_{i}": p for i, p in enumerate(lora_params)},
+      "model_type": model.model_type,
+    },
+    f"lora_model_epoch_{epoch}.pt",
+  )
+
+  # Log to wandb
+  artifact = wandb.Artifact(f"lora-model-epoch-{epoch}", type="model")
+  artifact.add_file(f"lora_model_epoch_{epoch}.pt")
   wandb.log_artifact(artifact)
 
 wandb.finish()
