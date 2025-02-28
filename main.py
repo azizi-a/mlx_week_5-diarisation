@@ -20,8 +20,8 @@ train_size = int(0.8 * len(ds))
 test_size = len(ds) - train_size
 ds_train, ds_test = torch.utils.data.random_split(ds, [train_size, test_size])
 
-data_loader_train = DataLoader(ds_train, batch_size=16, num_workers=1)
-data_loader_validate = DataLoader(ds_test, batch_size=16, num_workers=1)
+data_loader_train = DataLoader(ds_train, batch_size=8, num_workers=1)
+data_loader_validate = DataLoader(ds_test, batch_size=8, num_workers=1)
 
 #
 #
@@ -42,7 +42,7 @@ def forward_pass(model, text, audio):
 
   # Convert audio to mel spectrogram
   audio = whisper.pad_or_trim(audio)
-  audio = np.array(audio, dtype=np.float32)
+  audio = np.asarray(audio, dtype=np.float32)
   mel = whisper.log_mel_spectrogram(audio).to(device)
 
   # Encode all texts in batch
