@@ -2,6 +2,7 @@ import torch
 import whisper
 import editdistance
 import numpy as np
+import wandb
 
 from tqdm import tqdm
 
@@ -75,6 +76,8 @@ def validate_model(model, data_loader_validate):
 
     loss = criterion(predictions.transpose(1, 2), input_removed_sot)
     losses.append(loss.item())
+    wandb.log({"Validation Loss": loss.item()})
+
     if i == 3:
       print(predicted_texts[3])
 
@@ -91,11 +94,13 @@ def validate_model(model, data_loader_validate):
       if len(target_words) > 0:
         wer = distance / len(target_words)
         wers.append(wer)
+        wandb.log({"WER": wer})
 
   average_loss = sum(losses) / len(losses)
   print(f"Average loss: {average_loss}")
   average_wer = sum(wers) / len(wers)
   print(f"Average WER: {average_wer * 100:.2f}%")
+  wandb.log({"Average Validation Loss": average_loss, "Average WER": average_wer})
 
 
 #
@@ -118,17 +123,29 @@ def train_model(model, data_loader_train, epoch=0):
     loss.backward()
     optimizer.step()
 
+    wandb.log({"Training Loss": loss.item()})
+
   print(f"Epoch {epoch + 1}, Loss: {loss.item()}")
+  wandb.log({"Epoch Loss": loss.item()})
 
 
 #
 #
 #
+# Initialize wandb
+wandb.init(project="diarisation")
+
 # zero shot validation
 validate_model(model, data_loader_validate)
-raise Exception("Stop here")
 
 # train model
-for epoch in range(3):
+for epoch in range(8):
   train_model(model, data_loader_train, epoch)
   validate_model(model, data_loader_validate)
+
+  artifact = wandb.Artifact(f"model-epoch-{epoch}", type="model")
+  torch.save(model.state_dict(), f"model_epoch_{epoch}.pt")
+  artifact.add_file(f"model_epoch_{epoch}.pt")
+  wandb.log_artifact(artifact)
+
+  wandb.finish()
