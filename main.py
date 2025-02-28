@@ -79,6 +79,9 @@ def validate_model(model, data_loader_validate):
     wandb.log({"Validation Loss": loss.item()})
 
     if i == 3:
+      print("\nGround truth:")
+      print(text[3])
+      print("\nPredicted:")
       print(predicted_texts[3])
 
     # Calculate word error rate
