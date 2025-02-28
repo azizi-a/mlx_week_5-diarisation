@@ -161,7 +161,7 @@ for epoch in range(4):
     {
       "epoch": epoch,
       "lora_state_dict": {f"lora_{i}": p for i, p in enumerate(lora_params)},
-      "model_type": model.model_type,
+      "whisper_size": model.dims.n_audio_ctx,
     },
     f"lora_model_epoch_{epoch}.pt",
   )
