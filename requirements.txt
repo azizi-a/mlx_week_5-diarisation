@@ -1,0 +1,7 @@
+datasets==3.2.0
+editdistance==0.8.1
+numpy==1.26.3
+git+https://github.com/openai/whisper.git
+soundfile==0.13.1
+tqdm==4.67.1
+wandb==0.19.5

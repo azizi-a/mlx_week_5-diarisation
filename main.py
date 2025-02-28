@@ -27,7 +27,7 @@ data_loader_validate = DataLoader(ds_test, batch_size=16, num_workers=1)
 #
 #
 # Load the model
-model = whisper.load_model("tiny.en")
+model = whisper.load_model("small.en")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
 
