@@ -130,4 +130,6 @@ wget    -P ami/amicorpus/IN1012/audio https://groups.inf.ed.ac.uk/ami/AMICorpusM
 wget    -P ami/amicorpus/IN1013/audio https://groups.inf.ed.ac.uk/ami/AMICorpusMirror//amicorpus/IN1013/audio/IN1013.Mix-Lapel.wav
 wget    -P ami/amicorpus/IN1014/audio https://groups.inf.ed.ac.uk/ami/AMICorpusMirror//amicorpus/IN1014/audio/IN1014.Mix-Lapel.wav
 wget    -P ami/amicorpus/IN1016/audio https://groups.inf.ed.ac.uk/ami/AMICorpusMirror//amicorpus/IN1016/audio/IN1016.Mix-Lapel.wav
+wget -P ami https://groups.inf.ed.ac.uk/ami/AMICorpusAnnotations/ami_public_manual_1.6.2.zip && \
+unzip ami/ami_public_manual_1.6.2.zip -d ami/ami_public_manual_1.6.2
 wget https://groups.inf.ed.ac.uk/ami/download/temp/../CCBY4.0.txt
